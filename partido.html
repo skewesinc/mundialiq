@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MundialIQ — Detalle del partido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0a0f;
+    --bg-card: #131319;
+    --green: #00e676;
+    --green-dim: #00e67622;
+    --gold: #ffb800;
+    --red: #ff4d5e;
+    --text: #f4f4f6;
+    --text-dim: #9a9aa8;
+    --text-faint: #5c5c6b;
+    --border: #232330;
+    --display: 'Archivo Black', sans-serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'Space Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(0,230,118,0.07), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(255,184,0,0.05), transparent 40%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,10,15,0.85);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .header-inner{
+    max-width:1180px; margin:0 auto;
+    padding:18px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--display);
+    font-size:1.3rem;
+    letter-spacing:-0.02em;
+    text-decoration:none;
+    color:var(--text);
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo .dot{ color:var(--green); }
+  .back-link{
+    color:var(--text-dim);
+    text-decoration:none;
+    font-size:0.9rem;
+    font-weight:600;
+    display:flex; align-items:center; gap:6px;
+    transition:color .15s;
+  }
+  .back-link:hover{ color:var(--green); }
+
+  main{
+    max-width:880px;
+    margin:0 auto;
+    padding:56px 24px 100px;
+    position:relative; z-index:1;
+  }
+
+  .breadcrumb{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--text-faint);
+    margin-bottom:28px;
+  }
+  .breadcrumb .round{ color:var(--green); }
+
+  .match-hero{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:40px 32px;
+    margin-bottom:32px;
+  }
+  .match-hero-top{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px;
+    flex-wrap:wrap; gap:12px;
+  }
+  .meta-tag{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--text-faint);
+  }
+  .status-badge{
+    padding:5px 12px;
+    border-radius:6px;
+    font-weight:700;
+    font-size:0.74rem;
+    letter-spacing:0.03em;
+  }
+  .status-finished{ background:#1a1a24; color:var(--text-faint); }
+  .status-live{ background:#3a0a0e; color:var(--red); }
+  .status-upcoming{ background:var(--green-dim); color:var(--green); }
+
+  .teams-display{
+    display:flex; align-items:center; justify-content:center;
+    gap:36px;
+  }
+  .team-block{
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    flex:1; max-width:220px;
+  }
+  .team-flag-big{ font-size:4.5rem; line-height:1; }
+  .team-name-big{
+    font-family:var(--display);
+    font-size:1.3rem;
+    text-align:center;
+    letter-spacing:-0.01em;
+  }
+  .score-display{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    min-width:120px;
+  }
+  .score-big{
+    font-family:var(--mono); font-weight:700;
+    font-size:3.4rem;
+    display:flex; align-items:center; gap:16px;
+    color:var(--green);
+  }
+  .score-big .dash{ color:var(--text-faint); font-size:2rem; }
+  .vs-big{
+    font-family:var(--display);
+    font-size:2rem;
+    color:var(--text-faint);
+  }
+  .venue-line{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--text-faint);
+    text-align:center;
+  }
+
+  .summary-block{
+    margin-top:28px;
+    padding-top:28px;
+    border-top:1px solid var(--border);
+    color:var(--text-dim);
+    font-size:0.98rem;
+    line-height:1.65;
+  }
+
+  .section-label{
+    font-family:var(--display);
+    font-size:1.1rem;
+    margin-bottom:18px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-label::before{
+    content:'';
+    width:4px; height:18px;
+    background:var(--green);
+    border-radius:2px;
+  }
+
+  .picks-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:18px;
+    margin-bottom:40px;
+  }
+  @media(max-width:680px){ .picks-grid{ grid-template-columns:1fr; } }
+
+  .pick-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+  }
+  .pick-card.win{ border-color:rgba(0,230,118,0.4); }
+  .pick-card.loss{ border-color:rgba(255,77,94,0.35); }
+
+  .pick-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .pick-label{
+    font-family:var(--display);
+    font-size:1.05rem;
+  }
+  .pick-tag{
+    font-size:0.7rem;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:100px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .tag-segura{ background:var(--green-dim); color:var(--green); }
+  .tag-arriesgada{ background:#3a2400; color:var(--gold); }
+
+  .pick-selections{ list-style:none; margin-bottom:18px; }
+  .pick-selections li{
+    font-size:0.92rem;
+    color:var(--text);
+    padding:9px 0 9px 24px;
+    position:relative;
+    border-bottom:1px solid #1c1c26;
+  }
+  .pick-selections li:last-child{ border-bottom:none; }
+  .pick-selections li::before{
+    content:'⚽';
+    position:absolute; left:0; top:9px;
+    font-size:0.78rem;
+  }
+
+  .confidence-row{ display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+  .confidence-bar-track{
+    flex:1; height:10px;
+    background:#1c1c26;
+    border-radius:100px;
+    overflow:hidden;
+  }
+  .confidence-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--gold), var(--green));
+    border-radius:100px;
+  }
+  .confidence-pct{
+    font-family:var(--mono); font-weight:700;
+    font-size:1.15rem;
+    min-width:54px; text-align:right;
+  }
+  .outcome-marker{
+    font-size:0.82rem;
+    font-weight:700;
+    display:flex; align-items:center; gap:6px;
+    margin-bottom:14px;
+  }
+  .outcome-marker.win{ color:var(--green); }
+  .outcome-marker.loss{ color:var(--red); }
+  .outcome-marker.pending{ color:var(--text-faint); }
+
+  .copy-btn{
+    width:100%;
+    background:none;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:12px;
+    border-radius:10px;
+    font-family:var(--body);
+    font-weight:700;
+    font-size:0.85rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{ border-color:var(--green); color:var(--green); }
+
+  .recommend-note{
+    background:var(--green-dim);
+    border:1px solid rgba(0,230,118,0.25);
+    border-radius:14px;
+    padding:18px 20px;
+    font-size:0.88rem;
+    color:var(--text-dim);
+    margin-bottom:40px;
+    line-height:1.6;
+  }
+  .recommend-note strong{ color:var(--green); }
+
+  .not-found{
+    text-align:center;
+    padding:100px 24px;
+  }
+  .not-found-icon{ font-size:3rem; margin-bottom:20px; }
+  .not-found h2{
+    font-family:var(--display);
+    font-size:1.6rem;
+    margin-bottom:12px;
+  }
+  .not-found p{ color:var(--text-dim); margin-bottom:28px; }
+  .home-btn{
+    display:inline-block;
+    background:var(--green);
+    color:#06140c;
+    text-decoration:none;
+    padding:14px 28px;
+    border-radius:12px;
+    font-weight:800;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">Mundial<span class="dot">IQ</span></a>
+    <a href="index.html" class="back-link">← Volver al inicio</a>
+  </div>
+</header>
+
+<main id="mainContent"></main>
+
+<script src="data/matches.js"></script>
+<script>
+  function getParam(name){
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  function statusInfo(m){
+    const TODAY = "2026-06-29";
+    if(m.date === TODAY) return { text:"HOY", cls:"status-live" };
+    if(m.date > TODAY) return { text:"PRÓXIMO", cls:"status-upcoming" };
+    return { text:"FINALIZADO", cls:"status-finished" };
+  }
+
+  function pickCardHTML(pick){
+    const tagClass = pick.tag === "Segura" ? "tag-segura" : "tag-arriesgada";
+    const icon = pick.tag === "Segura" ? "🛡️" : "🔥";
+    const outcomeHTML = pick.outcome === "win"
+      ? `<div class="outcome-marker win">✓ Acertó</div>`
+      : pick.outcome === "loss"
+        ? `<div class="outcome-marker loss">✕ Falló</div>`
+        : `<div class="outcome-marker pending">○ Pendiente — partido sin jugarse aún</div>`;
+
+    return `
+      <div class="pick-card ${pick.outcome}">
+        <div class="pick-head">
+          <span class="pick-label">${icon} ${pick.label}</span>
+          <span class="pick-tag ${tagClass}">${pick.tag}</span>
+        </div>
+        <ul class="pick-selections">
+          ${pick.selections.map(s => `<li>${s}</li>`).join('')}
+        </ul>
+        <div class="confidence-row">
+          <div class="confidence-bar-track">
+            <div class="confidence-bar-fill" style="width:${pick.probability}%"></div>
+          </div>
+          <span class="confidence-pct">${pick.probability}%</span>
+        </div>
+        ${outcomeHTML}
+        <button class="copy-btn" onclick="copyPick(event, '${pick.label}', ${JSON.stringify(pick.selections).replace(/"/g,'&quot;')}, ${pick.probability})">Copiar esta apuesta</button>
+      </div>
+    `;
+  }
+
+  function copyPick(e, label, selections, prob){
+    const text = `${label}: ${selections.join(' + ')} (${prob}% probabilidad)`;
+    navigator.clipboard.writeText(text).then(()=>{
+      const btn = e.target;
+      const original = btn.textContent;
+      btn.textContent = "¡Copiado!";
+      setTimeout(()=> btn.textContent = original, 1500);
+    });
+  }
+
+  function renderMatch(m){
+    const st = statusInfo(m);
+    const hasResult = m.result !== null && m.result !== undefined;
+    const hasPicks = m.analysis.picks && m.analysis.picks.length > 0;
+
+    const scoreHTML = hasResult
+      ? `<div class="score-big"><span>${m.result.scoreA}</span><span class="dash">–</span><span>${m.result.scoreB}</span></div>`
+      : `<div class="vs-big">VS</div>`;
+
+    document.getElementById('mainContent').innerHTML = `
+      <div class="breadcrumb"><span class="round">${m.round}</span> · ${m.date} · ${m.time}</div>
+
+      <div class="match-hero">
+        <div class="match-hero-top">
+          <span class="meta-tag">${m.venue}</span>
+          <span class="status-badge ${st.cls}">${st.text}</span>
+        </div>
+        <div class="teams-display">
+          <div class="team-block">
+            <div class="team-flag-big">${m.teamA.flag}</div>
+            <div class="team-name-big">${m.teamA.name}</div>
+          </div>
+          <div class="score-display">
+            ${scoreHTML}
+            <div class="venue-line">${hasResult ? 'Resultado final' : 'Aún sin jugar'}</div>
+          </div>
+          <div class="team-block">
+            <div class="team-flag-big">${m.teamB.flag}</div>
+            <div class="team-name-big">${m.teamB.name}</div>
+          </div>
+        </div>
+        <div class="summary-block">${m.analysis.summary}</div>
+      </div>
+
+      ${hasPicks ? `
+        <h2 class="section-label">Apuestas recomendadas</h2>
+        <div class="recommend-note">
+          <strong>Cómo usar esto:</strong> La Apuesta A es siempre la más segura (Double Chance — gana o empata). La Apuesta B es más arriesgada, combinando el resultado con corners y goles totales. Puedes copiar la apuesta tal cual y registrarla en tu casa de apuestas favorita.
+        </div>
+        <div class="picks-grid">
+          ${m.analysis.picks.map(pickCardHTML).join('')}
+        </div>
+      ` : `
+        <div class="recommend-note">Este partido no tiene análisis de apuestas registrado todavía.</div>
+      `}
+    `;
+  }
+
+  function renderNotFound(query){
+    document.getElementById('mainContent').innerHTML = `
+      <div class="not-found">
+        <div class="not-found-icon">⚽</div>
+        <h2>No encontramos ese partido</h2>
+        <p>${query ? `No tenemos análisis para "${query}" todavía.` : 'Falta especificar un partido.'} Prueba buscando otro equipo o revisa el calendario completo.</p>
+        <a href="index.html" class="home-btn">Ver todos los partidos</a>
+      </div>
+    `;
+  }
+
+  // Main logic: busca por id exacto, o por query de texto
+  const id = getParam('id');
+  const q = getParam('q');
+
+  let match = null;
+  if(id){
+    match = MATCHES.find(m => m.id === id);
+  } else if(q){
+    const query = q.toLowerCase().trim();
+    match = MATCHES.find(m =>
+      m.teamA.name.toLowerCase().includes(query) ||
+      m.teamB.name.toLowerCase().includes(query) ||
+      m.teamA.code.toLowerCase().includes(query) ||
+      m.teamB.code.toLowerCase().includes(query) ||
+      `${m.teamA.name} ${m.teamB.name}`.toLowerCase().includes(query) ||
+      `${m.teamA.name} vs ${m.teamB.name}`.toLowerCase().includes(query)
+    );
+  }
+
+  if(match){
+    renderMatch(match);
+    document.title = `MundialIQ — ${match.teamA.name} vs ${match.teamB.name}`;
+  } else {
+    renderNotFound(q || id);
+  }
+</script>
+
+</body>
+</html>
