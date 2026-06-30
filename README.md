@@ -1,5 +1,7 @@
 # MundialIQ
 
+🔴 **Sitio en vivo:** https://skewesinc.github.io/mundialiq/
+
 Sitio de análisis de probabilidades para el Mundial 2026.
 
 ## 🚀 Cómo subirlo a internet (GitHub Pages — gratis)
